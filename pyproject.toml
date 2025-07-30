@@ -1,18 +1,15 @@
 [project]
 name = "flaskdemo"
 version = "0.1.0"
-description = ""
+description = "just some proof of concept"
 authors = [
-    {name = "hajoho",email = "hajoho@diresquirrel.de"}
+    {name = "qtttkt@diresquirrel.de"}
 ]
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "flask (>=3.1.1,<4.0.0)"
 ]
-
-[tool.poetry]
-packages = [{include = "flaskdemo", from = "src"}]
 
 
 [build-system]
