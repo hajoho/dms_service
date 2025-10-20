@@ -1,16 +1,19 @@
 [project]
-name = "flaskhello"
+name = "interactive_dms_service"
 version = "0.1.0"
-description = "minimal flask app for testing the setup"
+description = "PoC for using the enaio DMS Service API with a flask UI"
 authors = [
     {name = "hajoho",email = "hajo.hoffmann@stadt.erlangen.de"}
 ]
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "python-dotenv (>=1.1.1,<2.0.0)",
+    "flask (>=3.1.2,<4.0.0)",
     "flask-wtf (>=1.2.2,<2.0.0)",
-    "dotenv (>=0.9.9,<0.10.0)"
+    "logging (>=0.4.9.6,<0.5.0.0)",
+    "dotenv (>=0.9.9,<0.10.0)",
+    "pathlib (>=1.0.1,<2.0.0)",
+    "requests (>=2.32.5,<3.0.0)"
 ]
 
 

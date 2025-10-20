@@ -1,4 +1,4 @@
-from flaskhello import create_app
+from interactive_dms_service import create_app
 
 app = create_app()
 

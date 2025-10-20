@@ -15,9 +15,13 @@ class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'default-secret-key')
     FLASK_ENV = os.getenv('FLASK_ENV', 'development')
     APP_TITLE = os.getenv('APP_TITLE', 'Default App Title')
+    
     LOG_DIRECTORY = os.getenv('LOG_DIRECTORY', 'logs')
     LOG_LEVEL = getattr(logging, os.getenv('LOG_LEVEL', 'ERROR').upper())
     LOG_FILE = os.getenv('LOG_FILE', 'default.log')
+    
+    API_HOST = os.getenv('API_HOST', 'https://127.0.0.1')
+    API_AUTH = os.getenv('API_AUTH', '')
         
     @staticmethod
     def configure_app(app):

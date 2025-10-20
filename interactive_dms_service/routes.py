@@ -4,6 +4,7 @@ import logging
 from flask import Blueprint, render_template, request, redirect, url_for
 from .forms import HelloForm
 from .config import Config
+from .dmsapi import call_info
 
 # Create blueprint
 main = Blueprint('main', __name__)
@@ -17,7 +18,7 @@ def index():
 
     if form.validate_on_submit():
         form_result = form.name.data.strip()
-        logger.debug("Given input: %s", form_result)
+        logger.info("Given input: %s", form_result)
 
         return redirect(url_for('main.result', name=form_result))
     
@@ -38,9 +39,15 @@ def result():
 @main.route('/status')
 def status_check():
     """Simple status endpoint."""
-    logger.debug("Status requested")
+    logger.info("Status requested")
     return {
         'status': 'healthy',
         'app': Config.APP_TITLE,
         'environment': Config.FLASK_ENV
     }
+
+@main.route('/info')
+def info():
+    """Minimal DMS Endpoint"""
+    logger.info("Call Info Endpoint")
+    return call_info()
