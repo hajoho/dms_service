@@ -1,14 +1,16 @@
 [project]
-name = "flaskdemo"
+name = "flaskhello"
 version = "0.1.0"
-description = "just some proof of concept"
+description = "minimal flask app for testing the setup"
 authors = [
-    {name = "qtttkt@diresquirrel.de"}
+    {name = "hajoho",email = "hajo.hoffmann@stadt.erlangen.de"}
 ]
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "flask (>=3.1.1,<4.0.0)"
+    "python-dotenv (>=1.1.1,<2.0.0)",
+    "flask-wtf (>=1.2.2,<2.0.0)",
+    "dotenv (>=0.9.9,<0.10.0)"
 ]
 
 

@@ -1,1 +1,3 @@
-Just some "Hello World"s and some deployment tests
+# Flask Hello
+
+Minimal Flask App for testing the setup

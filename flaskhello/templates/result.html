@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Greeting Result</title>
+</head>
+<body>
+    {% if success %}
+        <h1>{{ greeting_message }}</h1>
+        <p>Nice to meet you, {{ name }}.</p>
+        <a href="{{ url_for('main.index') }}">Back to form</a>
+    {% else %}
+        <p>Something went wrong. Please try again.</p>
+    {% endif %}
+</body>
+</html>
