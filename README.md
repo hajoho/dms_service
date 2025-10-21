@@ -1,3 +1,2 @@
-# Flask Hello
-
-Minimal Flask App for testing the setup
+# dms_service
+Flask App for interactive folder and document maintenance in enaio
