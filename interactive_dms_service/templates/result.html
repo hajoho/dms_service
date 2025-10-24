@@ -2,15 +2,74 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Greeting Result</title>
+    <title>Search Result</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background-color: white;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #eee;
+        }
+    </style>
+
 </head>
 <body>
-    {% if success %}
-        <h1>{{ greeting_message }}</h1>
-        <p>Nice to meet you, {{ name }}.</p>
-        <a href="{{ url_for('main.index') }}">Back to form</a>
+    <h1>Search Results</h1>
+    <p>Query: {{ query }}.</p>
+    <a href="{{ url_for('main.index') }}">Back to form</a>
+
+    {% if result_json.objects and result_json.objects|length > 0 %}
+
+        {% set assumed_properties = result_json.objects[0]['properties'] %}
+
+        <p>
+            Items displayed: {{ result_json.numItems }} <br>
+            {% if result_json.hasMoreItems %}<strong>More items available ...</strong>{% endif %}
+        </p>
+
+    <table >
+        <thead>
+            <tr>
+                {% for key in assumed_properties.keys() %}
+                    <th>{{ key }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for obj in result_json.objects %}
+                <tr>
+                    {% for key in assumed_properties.keys() %}
+                        <td>
+                            {% if obj.properties[key] is defined %}
+                                {{ obj.properties[key].value }}
+                            {% else %}
+                                &nbsp;
+                            {% endif %}
+                            {# Inline version of this code block: {{ obj.properties[key].value if obj.properties[key] is defined else &nbsp }} #}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
     {% else %}
-        <p>Something went wrong. Please try again.</p>
+        <p>No results found.</p>
     {% endif %}
 </body>
 </html>
