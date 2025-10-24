@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ObjectType Schema</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h2>{{ object_info.displayName }} ({{ object_info.localName }})</h2>
+    <p>Base ID: {{ object_info.baseId }}</p>
+    <h3>Allowed Child Object Types</h3>
+    <ul>
+        {% for child in object_info.allowedChildren %}
+            <li><a href="{{ child.child_url }}">Child ID {{ child.child_id }}</a></li>
+        {% endfor %}
+    </ul>
+</body>

@@ -4,7 +4,7 @@ import logging
 from flask import Blueprint, current_app, render_template, request, redirect, url_for
 from .forms import SearchForm
 from .config import Config
-from .dmsapi import call_info, call_search
+from .dmsapi import call_info, call_search, call_schema, call_objectschema
 
 # Create blueprint
 main = Blueprint('main', __name__)
@@ -37,10 +37,14 @@ def index():
     
     for rule in current_app.url_map.iter_rules():
 
+        # skip static endpoints
+        if "static" in rule.endpoint:
+            continue
+
         # try creating URLs - even for parameterized endpoints
         try:
             url = url_for(rule.endpoint, **{arg: f"<{arg}>" for arg in rule.arguments})
-        except Exception:
+        except BuildError:
             url = None
         
         routes.append({
@@ -83,3 +87,54 @@ def info():
     """Minimal DMS Endpoint"""
     logger.info("Call Info Endpoint")
     return call_info()
+
+
+@main.route('/schema')
+def schema():
+    """ObjectDefinition Schema overview."""
+    
+    logger.info("Full Schema requested")
+    
+    schema_data = call_schema()
+    
+    object_types = []
+    for obj in schema_data.get("objectTypes", []):
+        object_types.append({
+            "id": obj.get("id"),
+            "localName": obj.get("localName"),
+            "displayName": obj.get("displayName"),
+            "detail_url": url_for('main.object_schema', objecttype_id=obj.get("id"))
+        })
+    
+    object_types.sort(key=lambda x: (x["displayName"] or "").lower())
+    logger.debug("Schema contains %d object types", len(object_types))
+    
+    return render_template('schema.html', object_types=object_types)
+    
+
+
+
+@main.route('/objectschema/<objecttype_id>')
+def object_schema(objecttype_id):
+    """ObjectDefinition for specific ObjectType."""
+    
+    logger.info("Object schema requested for ObjectType-ID %s", objecttype_id)
+    
+    object_schema_data = call_objectschema(objecttype_id)
+    
+    object_info = {
+        "id": object_schema_data.get("id"),
+        "localName": object_schema_data.get("localName"),
+        "displayName": object_schema_data.get("displayName"),
+        "baseId": object_schema_data.get("baseId"),
+        "allowedChildren": []
+    }
+
+    # Build child route links
+    for child_id in object_schema_data.get("allowedChildObjectTypeIds", []):
+        object_info["allowedChildren"].append({
+            "child_id": child_id,
+            "child_url": url_for('main.object_schema', objecttype_id=child_id)
+        })
+    
+    return render_template('objectschema.html', object_info=object_info)

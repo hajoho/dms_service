@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Schema Overview</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5em;
+            font-family: Arial, sans-serif;
+        }
+        th, td {
+            padding: 0.6em;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Schema Overview</h1>
+    <table>
+        <tr>
+            <th>Display Name</th>
+            <th>Local Name</th>
+            <th>Object Type ID</th>
+        </tr>
+        {% for obj in object_types %}
+        <tr>
+            <td>{{ obj.displayName }}</td>
+            <td>{{ obj.localName }}</td>
+            <td><a href="{{ obj.detail_url }}">{{ obj.id }}</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
