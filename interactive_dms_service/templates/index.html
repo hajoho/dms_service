@@ -3,20 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <title>{{ app_title }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f7f7f7; }
+        h1 { color: #333; }
+        table { width: 100%; border-collapse: collapse; background-color: #fff; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #eee; }
+        tr:hover { background-color: #f1f1f1; }
+        </style>
 </head>
 <body>
-    <h1>{{ app_title }}</h1>
-    <form method="POST">
-        {{ form.hidden_tag() }}
-        <p>
-            {{ form.folder.label }}<br>
-            {{ form.folder(size=32) }}
-        </p>
-        <p>
-            {{ form.field.label }}<br>
-            {{ form.field(size=32) }}
-        </p>
-        <p><input type="submit" value="Start Search"></p>
-    </form>
+    <h1>Sitemap of {{ app_title }}</h1>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Route</th>
+                    <th>URL</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for route in sitemap_data %}
+                <tr>
+                    <td>{{ route.endpoint }}</td>
+                    <td>
+                        {% if route.url %}
+                            <a href="{{ route.url }}">{{ route.url }}</a>
+                        {% else %}
+                            Needs Parameters
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
 </body>
 </html>

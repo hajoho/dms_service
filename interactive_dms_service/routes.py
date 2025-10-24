@@ -1,7 +1,7 @@
 """Routes of flask Web App"""
 
 import logging
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, current_app, render_template, request, redirect, url_for
 from .forms import SearchForm
 from .config import Config
 from .dmsapi import call_info, call_search
@@ -10,24 +10,48 @@ from .dmsapi import call_info, call_search
 main = Blueprint('main', __name__)
 logger = logging.getLogger(__name__)
 
-@main.route('/', methods=['GET', 'POST'])
-def index():
-    """Main page with form."""
+@main.route('/search', methods=['GET', 'POST'])
+def search():
+    """Simple Search Form"""
     
-    form = SearchForm()
+    new_form = SearchForm()
 
-    if form.validate_on_submit():
-        result_field = form.field.data.strip()
-        result_folder = form.folder.data.strip()
+    if new_form.validate_on_submit():
+        result_field = new_form.field.data.strip()
+        result_folder = new_form.folder.data.strip()
         logger.info("Search for field %s in folder %s", result_field, result_folder)
 
         return redirect(url_for('main.result', field=result_field, folder=result_folder))
     
     # Log form validation errors if any
-    if form.errors:
-        logger.warning("Form validation errors: %s", form.errors)
+    if new_form.errors:
+        logger.warning("Form validation errors: %s", new_form.errors)
 
-    return render_template('index.html', form=form, app_title=Config.APP_TITLE)
+    return render_template('search.html', form=new_form)
+
+
+@main.route('/')
+def index():
+    """Sitemap of all defined routes"""
+    routes = []
+    
+    for rule in current_app.url_map.iter_rules():
+
+        # try creating URLs - even for parameterized endpoints
+        try:
+            url = url_for(rule.endpoint, **{arg: f"<{arg}>" for arg in rule.arguments})
+        except Exception:
+            url = None
+        
+        routes.append({
+            "endpoint": rule.endpoint,
+            "url": url
+        })
+    
+    # sort routes - be aware of non-existing URLs
+    routes.sort(key=lambda r: r["url"] or "")
+     
+    return render_template('index.html', sitemap_data=routes, app_title=Config.APP_TITLE) 
 
 
 @main.route('/result')

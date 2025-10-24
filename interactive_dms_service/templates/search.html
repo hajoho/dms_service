@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Search</title>
+</head>
+<body>
+    <h1>Search Form</h1>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.folder.label }}<br>
+            {{ form.folder(size=32) }}
+        </p>
+        <p>
+            {{ form.field.label }}<br>
+            {{ form.field(size=32) }}
+        </p>
+        <p><input type="submit" value="Start Search"></p>
+    </form>
+</body>
+</html>
