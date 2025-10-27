@@ -15,12 +15,19 @@
     </style>
 </head>
 <body>
-    <h2>{{ object_info.displayName }} ({{ object_info.localName }})</h2>
-    <p>Base ID: {{ object_info.baseId }}</p>
+    <h2>{{ result_json.displayName }}</h2>
+    <p>Local Name: {{ result_json.localName }}</p>
+    <p>Base ID: {{ result_json.baseId }}</p>
     <h3>Allowed Child Object Types</h3>
     <ul>
-        {% for child in object_info.allowedChildren %}
+        {% for child in result_json.allowedChildren %}
             <li><a href="{{ child.child_url }}">Child ID {{ child.child_id }}</a></li>
+        {% endfor %}
+    </ul>
+    <h3>Fields</h3>
+    <ul>
+        {% for field in result_json.fields %}
+            <li>{{field.display_name}} ({{ field.local_name }} {{field.type}})</li>
         {% endfor %}
     </ul>
 </body>

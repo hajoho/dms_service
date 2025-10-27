@@ -109,7 +109,7 @@ def schema():
     object_types.sort(key=lambda x: (x["displayName"] or "").lower())
     logger.debug("Schema contains %d object types", len(object_types))
     
-    return render_template('schema.html', object_types=object_types)
+    return render_template('schema.html', result_json=object_types)
     
 
 
@@ -127,14 +127,33 @@ def object_schema(objecttype_id):
         "localName": object_schema_data.get("localName"),
         "displayName": object_schema_data.get("displayName"),
         "baseId": object_schema_data.get("baseId"),
-        "allowedChildren": []
+        "allowedChildren": [],
+        "fields": []
     }
 
-    # Build child route links
     for child_id in object_schema_data.get("allowedChildObjectTypeIds", []):
         object_info["allowedChildren"].append({
             "child_id": child_id,
             "child_url": url_for('main.object_schema', objecttype_id=child_id)
         })
+
+
+    # TIL: Python List Comprehension: 
+    #   new_list = [expression for member in iterable if conditional]
     
-    return render_template('objectschema.html', object_info=object_info)
+    # Extract and filter field information (exclude static fields)
+    object_info["fields"] = [
+        {
+            "local_name": field_object.get("localName"),
+            "display_name": field_object.get("displayName"),
+            "type": field_object.get("propertyType")
+        }
+        for field_object in object_schema_data.get("fields", [])
+        if field_object.get("propertyType") != "static"
+    ]
+    
+    
+    
+    object_info["fields"].sort(key=lambda x: (x["display_name"] or "").lower())
+    
+    return render_template('objectschema.html', result_json=object_info)
