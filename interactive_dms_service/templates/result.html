@@ -29,47 +29,35 @@
     </style>
 
 </head>
+
 <body>
     <h1>Search Results</h1>
-    <p>Query: {{ query }}.</p>
+    <p>Query: {{ result_query }}</p>
     <a href="{{ url_for('main.search') }}">Back to form</a>
+    <a href="{{ url_for('main.update') }}">Modify search results</a>
 
-    {% if result_json.objects and result_json.objects|length > 0 %}
-
-        {% set assumed_properties = result_json.objects[0]['properties'] %}
-
-        <p>
-            Items displayed: {{ result_json.numItems }} <br>
-            {% if result_json.hasMoreItems %}<strong>More items available ...</strong>{% endif %}
-        </p>
-
-    <table >
-        <thead>
-            <tr>
-                {% for key in assumed_properties.keys() %}
-                    <th>{{ key }}</th>
-                {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for obj in result_json.objects %}
+    {% if result_rows and result_rows|length > 0 %}
+        <table>
+            <thead>
                 <tr>
-                    {% for key in assumed_properties.keys() %}
-                        <td>
-                            {% if obj.properties[key] is defined %}
-                                {{ obj.properties[key].value }}
-                            {% else %}
-                                &nbsp;
-                            {% endif %}
-                            {# Inline version of this code block: {{ obj.properties[key].value if obj.properties[key] is defined else &nbsp }} #}
-                        </td>
+                    {% for header in result_headers %}
+                        <th>{{ header }}</th>
                     {% endfor %}
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for row in result_rows %}
+                    <tr>
+                        {% for header in result_headers %}
+                            <td>{{ row.get(header, '&nbsp;')|safe }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     {% else %}
         <p>No results found.</p>
     {% endif %}
 </body>
+
 </html>

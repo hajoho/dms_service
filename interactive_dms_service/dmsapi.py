@@ -46,7 +46,7 @@ def call_search(qry_fields, qry_folder):
 
     payload = {
         "query": {
-            "statement": f"SELECT {qry_fields} FROM {qry_folder} WHERE zahl3<>1",
+            "statement": f"SELECT {qry_fields} FROM {qry_folder}",
             "skipCount": 0,
             "maxItems": 100,
             "handleDeletedDocuments": "DELETED_DOCUMENTS_EXCLUDE"

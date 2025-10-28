@@ -11,7 +11,7 @@ class SearchForm(FlaskForm):
         'Internal Folder name',
         validators=[
             DataRequired(message='Provide a folder name'),
-            Length(min=1, max=100, message='Folder name must be between 1 and 50 characters')
+            Length(min=1, max=100, message='Folder name must be between 1 and 100 characters')
         ],
         render_kw={
             'placeholder': 'Enter internal folder name',
@@ -22,7 +22,7 @@ class SearchForm(FlaskForm):
     field = StringField(
         'Internal field name',
         validators=[
-            Length(min=1, max=100, message='Field name must be between 1 and 50 characters')
+            Length(min=1, max=100, message='Field name must be between 1 and 100 characters')
         ],
         render_kw={
             'placeholder': 'Enter internal field name',
@@ -34,3 +34,33 @@ class SearchForm(FlaskForm):
         'Submit',
         render_kw={'class': 'btn btn-primary'}
     )
+
+
+class UpdateForm(FlaskForm):
+    """Simple Set Field to Value Form"""
+    
+    field = StringField(
+        'Internal field name',
+        validators=[
+            DataRequired(message='Provide a field name'),
+            Length(min=1, max=100, message='Field name must be between 1 and 100 characters')
+        ],
+
+        render_kw={
+            'placeholder': 'Enter internal field name',
+            'class': 'form-control'
+        }        
+    )
+    
+    new_value = StringField(
+        'The value that is written to the given field',
+        render_kw={
+            'placeholder': 'Enter new value',
+            'class': 'form-control'
+        }        
+    )    
+    
+    update = SubmitField(
+        'Start Dry Run',
+        render_kw={'class': 'btn btn-primary'}
+    )    

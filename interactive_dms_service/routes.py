@@ -1,33 +1,14 @@
 """Routes of flask Web App"""
 
 import logging
-from flask import Blueprint, current_app, render_template, request, redirect, url_for
-from .forms import SearchForm
+from flask import Blueprint, current_app, render_template, request, redirect, url_for, session
+from .forms import SearchForm, UpdateForm
 from .config import Config
 from .dmsapi import call_info, call_search, call_schema, call_objectschema
 
 # Create blueprint
 main = Blueprint('main', __name__)
 logger = logging.getLogger(__name__)
-
-@main.route('/search', methods=['GET', 'POST'])
-def search():
-    """Simple Search Form"""
-    
-    new_form = SearchForm()
-
-    if new_form.validate_on_submit():
-        result_field = new_form.field.data.strip()
-        result_folder = new_form.folder.data.strip()
-        logger.info("Search for field %s in folder %s", result_field, result_folder)
-
-        return redirect(url_for('main.result', field=result_field, folder=result_folder))
-    
-    # Log form validation errors if any
-    if new_form.errors:
-        logger.warning("Form validation errors: %s", new_form.errors)
-
-    return render_template('search.html', form=new_form)
 
 
 @main.route('/')
@@ -57,21 +38,6 @@ def index():
      
     return render_template('index.html', sitemap_data=routes, app_title=Config.APP_TITLE) 
 
-
-@main.route('/result')
-def result():
-    """Search result route"""
-
-    arg_folder = request.args.get('folder', '')
-    arg_fields = request.args.get('field', '*')
-    logger.debug("Form Values. Field %s Folder %s", arg_fields, arg_folder)
-
-    search_results = call_search(arg_fields, arg_folder)
-
-    query_string = f"SELECT {arg_fields} FROM {arg_folder} WHERE zahl3<>1"
-
-    return render_template('result.html', query=query_string, result_json=search_results)
-
 @main.route('/status')
 def status_check():
     """Simple status endpoint."""
@@ -82,11 +48,114 @@ def status_check():
         'environment': Config.FLASK_ENV
     }
 
+
 @main.route('/info')
 def info():
     """Minimal DMS Endpoint"""
     logger.info("Call Info Endpoint")
     return call_info()
+
+
+@main.route('/search', methods=['GET', 'POST'])
+def search():
+    """Simple Search Form"""
+    
+    search_form = SearchForm()
+
+    if search_form.validate_on_submit():
+        input_field = search_form.field.data.strip()
+        input_folder = search_form.folder.data.strip()
+        logger.info("Search for field %s in folder %s", input_field, input_folder)
+
+        return redirect(url_for('main.result', field=input_field, folder=input_folder))
+    
+    # Log form validation errors if any
+    if search_form.errors:
+        logger.warning("Form validation errors: %s", search_form.errors)
+
+    return render_template('search.html', form=search_form)
+
+
+@main.route('/result')
+def result():
+    """Search result route"""
+
+    arg_folder = request.args.get('folder', '')
+    arg_fields = request.args.get('field', '*')
+
+    query_string = f"Show {arg_fields} for {arg_folder} items"
+    logger.debug("Search Query: %s", query_string)
+
+    search_results = call_search(arg_fields, arg_folder)
+    
+    # parse search results
+    parsed_results = {
+        'table_headers': [],
+        'table_rows': [],
+        'objects': []
+    }
+    
+    objects = search_results.get('objects', [])
+    
+    # handle empty search results
+    if not objects:        
+    
+        # Clear old search results from session data 
+        session.pop('search_results', None)
+        
+        return render_template('result.html', result_query=query_string, result_headers=parsed_results['table_headers'], result_rows=parsed_results['table_rows'] )
+    
+    # use all properties from first object as table headers (exclude system properties)
+    first_obj_properties = objects[0].get('properties', {})
+    parsed_results['table_headers'] = [
+        key for key in first_obj_properties.keys() 
+        if not key.startswith('system:')
+    ]
+    
+    # parse properties from each object in the search results
+    for object in objects:
+        properties = object.get('properties', {})
+        
+        # get objectId and objectTypeId to store search result for later 
+        object_ids = {
+            'objectId': properties.get('system:objectId', {}).get('value'),
+            'objectTypeId': properties.get('system:objectTypeId', {}).get('value'),
+        }
+        parsed_results['objects'].append(object_ids)
+        
+        # Extract non-system properties for table content
+        table_row = {}
+        for key in parsed_results['table_headers']:
+            prop_data = properties.get(key, {})
+            table_row[key] = prop_data.get('value', '')
+        
+        parsed_results['table_rows'].append(table_row)    
+    
+    # Store search results in session for later use
+    session['search_results'] = parsed_results['objects']
+    logger.info(f"Stored {len(parsed_results['objects'])} result IDs in session")
+            
+    return render_template('result.html', result_query=query_string, result_headers=parsed_results['table_headers'], result_rows=parsed_results['table_rows'] )
+
+
+@main.route('/update')
+def update():
+    """Form asking for field to update"""
+    
+    update_form = UpdateForm()
+
+    if update_form.validate_on_submit():
+        input_field = update_form.field.data.strip()
+        input_new_value = update_form.new_value.data.strip()
+        logger.info("Update field %s to ", input_field, input_new_value)
+
+        return redirect(url_for('main.dryrun', field=input_field, new_value=input_new_value))
+    
+    # Log form validation errors if any
+    if update_form.errors:
+        logger.warning("Form validation errors: %s", update_form.errors)
+
+    return render_template('update.html', form=update_form)
 
 
 @main.route('/schema')

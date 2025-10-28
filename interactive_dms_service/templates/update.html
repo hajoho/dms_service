@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Search Results</title>
+</head>
+<body>
+    <h1>Update Search Results</h1>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.field.label }}<br>
+            {{ form.field(size=32) }}
+        </p>
+        <p>
+            {{ form.new_value.label }}<br>
+            {{ form.new_value(size=32) }}
+        </p>
+        <p><input type="submit" value="Start Dry-Run"></p>
+    </form>
+</body>
+</html>
