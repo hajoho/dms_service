@@ -16,7 +16,8 @@
             {{ form.new_value.label }}<br>
             {{ form.new_value(size=32) }}
         </p>
-        <p><input type="submit" value="Start Dry-Run"></p>
+        <p>Number of affected objects: {{ amount }}</p>
+        <p>{{ form.start }}</p>
     </form>
 </body>
 </html>

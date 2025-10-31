@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Search Result</title>
+    <title>Update Dry-Run</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -31,32 +31,35 @@
 </head>
 
 <body>
-    <h1>Search Results</h1>
-    <p>Query: {{ result_query }}</p>
-    <a href="{{ url_for('main.search') }}">Back to search form</a>
-    <a href="{{ url_for('main.update') }}">Modify search results</a>
+    <h1>Update Dry-Run</h1>
+    <p>Info: {{ update_info }}</p>
+    <a href="{{ url_for('main.update') }}">Back to update form</a>
 
-    {% if result_rows and result_rows|length > 0 %}
+    {% if update_dryrun and update_dryrun|length > 0 %}
         <table>
             <thead>
                 <tr>
-                    {% for header in result_headers %}
-                        <th>{{ header }}</th>
-                    {% endfor %}
+                    <th>ObjectID</th>
+                    <th>Field</th>
+                    <th>Status</th>
+                    <th>Current Value</th>
+                    <th>New Value</th>
                 </tr>
             </thead>
             <tbody>
-                {% for row in result_rows %}
+                {% for row in update_dryrun %}
                     <tr>
-                        {% for header in result_headers %}
-                            <td>{{ row.get(header, '&nbsp;')|safe }}</td>
-                        {% endfor %}
+                        <td>{{ row.get("object_id", '&nbsp;')|safe }}</td>
+                        <td>{{ row.get("field", '&nbsp;')|safe }}</td>
+                        <td>{{ row.get("details", '&nbsp;')|safe }}</td>
+                        <td>{{ row.get("current_value", '&nbsp;')|safe }}</td>
+                        <td>{{ row.get("new_value", '&nbsp;')|safe }}</td>                        
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
     {% else %}
-        <p>No results found.</p>
+        <p>No Dry-Run data available.</p>
     {% endif %}
 </body>
 

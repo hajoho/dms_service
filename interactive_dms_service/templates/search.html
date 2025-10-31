@@ -9,14 +9,18 @@
     <form method="POST">
         {{ form.hidden_tag() }}
         <p>
+            {{ form.field.label }}<br>
+            {{ form.field(size=32) }}
+        </p>
+        <p>
             {{ form.folder.label }}<br>
             {{ form.folder(size=32) }}
         </p>
         <p>
-            {{ form.field.label }}<br>
-            {{ form.field(size=32) }}
+            {{ form.condition.label }}<br>
+            {{ form.condition(size=32) }}
         </p>
-        <p><input type="submit" value="Start Search"></p>
+        <p>{{ form.search }}</p>
     </form>
 </body>
 </html>

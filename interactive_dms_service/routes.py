@@ -4,7 +4,7 @@ import logging
 from flask import Blueprint, current_app, render_template, request, redirect, url_for, session
 from .forms import SearchForm, UpdateForm
 from .config import Config
-from .dmsapi import call_info, call_search, call_schema, call_objectschema
+from .dmsapi import call_info, call_search, call_schema, call_objectschema, call_dryrun, call_update
 
 # Create blueprint
 main = Blueprint('main', __name__)
@@ -65,9 +65,10 @@ def search():
     if search_form.validate_on_submit():
         input_field = search_form.field.data.strip()
         input_folder = search_form.folder.data.strip()
+        input_condition = search_form.condition.data.strip()
         logger.info("Search for field %s in folder %s", input_field, input_folder)
 
-        return redirect(url_for('main.result', field=input_field, folder=input_folder))
+        return redirect(url_for('main.result', field=input_field, folder=input_folder, condition=input_condition))
     
     # Log form validation errors if any
     if search_form.errors:
@@ -81,12 +82,13 @@ def result():
     """Search result route"""
 
     arg_folder = request.args.get('folder', '')
-    arg_fields = request.args.get('field', '*')
+    arg_field = request.args.get('field', '*')
+    arg_condition = request.args.get('condition', '*')
 
-    query_string = f"Show {arg_fields} for {arg_folder} items"
+    query_string = f"Show {arg_field} for {arg_folder} items with {arg_condition}"
     logger.debug("Search Query: %s", query_string)
 
-    search_results = call_search(arg_fields, arg_folder)
+    search_results = call_search(arg_field, arg_folder, arg_condition)
     
     # parse search results
     parsed_results = {
@@ -133,12 +135,12 @@ def result():
     
     # Store search results in session for later use
     session['search_results'] = parsed_results['objects']
-    logger.info(f"Stored {len(parsed_results['objects'])} result IDs in session")
+    logger.info("Stored %i result IDs in session", len(parsed_results['objects']))
             
     return render_template('result.html', result_query=query_string, result_headers=parsed_results['table_headers'], result_rows=parsed_results['table_rows'] )
 
 
-@main.route('/update')
+@main.route('/update', methods=['GET', 'POST'])
 def update():
     """Form asking for field to update"""
     
@@ -155,7 +157,37 @@ def update():
     if update_form.errors:
         logger.warning("Form validation errors: %s", update_form.errors)
 
-    return render_template('update.html', form=update_form)
+    if not session.get('search_results'):
+        logger.warning("Update is not possible if there are no search results stored for this session.")
+        return redirect(url_for('main.index'))
+    
+        
+    no_of_affected_objects = len(session['search_results'])
+    logger.info("Update may affect %i objects", no_of_affected_objects)
+
+    return render_template('update.html', amount=no_of_affected_objects, form=update_form)
+
+
+@main.route('/dryrun')
+def dryrun():
+    """1. getting the current values for a given field for all items in the stored search results 2. showing how the values will change in an update 3. preparing the payload data for the actual update"""
+
+    arg_field = request.args.get('field', '')
+    arg_new_value = request.args.get('new_value', '')
+
+    update_string = f"Updating {arg_field} to {arg_new_value}"
+    
+    search_result_data = session['search_results']
+
+    dryrun_data = call_dryrun(search_result_data, arg_field, arg_new_value)
+    logger.info("Dryrun '%s' conducted for %i objects", update_string, len(dryrun_data['result_payloads']))
+
+    # store prepared payloads for the actual update
+    session['update_payloads'] = dryrun_data['result_payloads']
+
+    return render_template('dryrun.html', update_info=update_string, update_dryrun=dryrun_data['result_dryrun'])
+
+    
 
 
 @main.route('/schema')

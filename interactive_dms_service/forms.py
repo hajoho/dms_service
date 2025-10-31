@@ -29,9 +29,19 @@ class SearchForm(FlaskForm):
             'class': 'form-control'
         }
     )    
+    
+    condition = StringField(
+        'Contents for WHERE clause',
         
-    submit = SubmitField(
-        'Submit',
+        render_kw={
+            'placeholder': 'Enter search conditions',
+            'class': 'form-control'
+        }        
+    )
+
+        
+    search = SubmitField(
+        'Search',
         render_kw={'class': 'btn btn-primary'}
     )
 
@@ -60,7 +70,7 @@ class UpdateForm(FlaskForm):
         }        
     )    
     
-    update = SubmitField(
+    start = SubmitField(
         'Start Dry Run',
         render_kw={'class': 'btn btn-primary'}
     )    
